@@ -1,47 +1,55 @@
-#include<bits/stdc++.h>
+#include <bits/stdc++.h>
 using namespace std;
-
-int random(int n, int * a, int s)
-{
-    map<int, int> m;
-    for(int i = 0; i<s; i++)
-        m[a[i]] = 1;
-    while(true)
-    {
-        int ans = (floor(rand()*100));
-        ans = ans%n;
-        if(m[ans]==1)
-            continue;
-        return ans;
+bool vis [100000 + 1];
+int pri [100000 + 1];
+int dp [1000000 + 1];
+int siz = 0;
+int N = 100000 + 1;
+int t , n , r1 , r2;
+string s;
+void sieve(){
+    for(long long i = 2; i * i < N; i++){
+        if(!vis[i]){
+            for( long long j = i * i; j < N; j+= i){
+                vis[j] = true;
+            }
+        }
+    }
+    for(int i = 2; i < N; i++){
+        pri[i] = pri[i - 1] + !vis[i];
     }
 }
-
-int maxSum(int * A, int n)
-{
-    int * a = new int [n];
-    memset(a, 0, n);
-    for(int i=0; i<=n; i++)
-    {
-        a[A[i]-1]++;
-        if(a[A[i]-1]==2)
-            return A[i];
+int rec(int index){
+    if(index > n){
+        cout<<"Fucked";
+        return 0;
     }
-    return -1;
-
+    if(index == n) return 0;
+    if(dp[index] != -1) return dp[index];
+    int mini1 = 1e9;
+    if(index + 1 <= n && s[index + 1] != '*') mini1 = min(mini1 , 1 + rec(index + 1));
+    if(index + 2 <= n && s[index + 2] != '*') mini1 = min(mini1 , 1 + rec(index + 2));
+    if(pri[index] * r2 >= index  * r1 && (index + pri[index] <= n) && ( s[index + pri[index]] != '*') )
+        mini1 = min(mini1, 1 + rec(index + pri[index]));
+    return dp[index] = mini1;
 }
 int main()
 {
-    int a[] = {31, 6, 8, 12, 22, 27, 1, 30, 11, 28, 36, 18, 17, 16, 24, 10, 21, 23, 2, 32, 33, 3, 9, 15, 13, 14, 23, 4, 20, 5, 34, 26, 19, 7, 25, 35, 29 };
-
-    cout<<maxSum(a, 37);
- /*   int n, s;
-    cin>>n>>s;
-
-    int * a = new int [n];
-    for(int i=0; i<n; i++)
-        cin>>a[i];
-    for(int i=0; i<5; i++)
-    cout<<random(s, a, n)<<endl;
-*/
+    sieve();
+    scanf("%d", &t);
+    while(t--){
+        memset(dp , -1, sizeof dp);
+        scanf("%d%d", &r1, &r2);
+        scanf("%d", &n);
+        cin >> s;
+        s = "0" + s;
+        if(s[n] == '*' || s[1] == '*'){
+            printf("No way!\n");
+            continue;
+        }
+        int ans = rec(1);
+        if(ans == 1e9) printf("No way!\n");
+        else printf("%d\n", ans);
+    }
     return 0;
 }
